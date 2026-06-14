@@ -14,9 +14,13 @@ MODEL = "gemini-2.5-flash"
 
 PROMPT = (
     "Detect the basketball hoop, meaning the rim and net together as a "
-    "single object. Output a JSON list with one entry whose bounding box "
-    "tightly encloses just the rim and net, excluding the backboard. The "
-    'entry should contain the 2D bounding box in the key "box_2d" as '
+    "single object. The rim is the orange oval ring; the net hangs below "
+    "it. Output a JSON list with one entry whose bounding box tightly "
+    "follows the outer edge of the orange ring and the net beneath it. The "
+    "top of the box should touch the top of the orange ring itself, not "
+    "the dark square mounting plate or backboard behind it, and the box "
+    "must not include any visible backboard glass. The entry should "
+    'contain the 2D bounding box in the key "box_2d" as '
     "[ymin, xmin, ymax, xmax] normalized to 0-1000, and a descriptive label "
     'in the key "label".'
 )
