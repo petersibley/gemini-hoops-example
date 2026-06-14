@@ -15,7 +15,7 @@ MODEL = "gemini-2.5-flash"
 PROMPT = (
     "Detect the prominent items in the image. Output a JSON list where each "
     'entry contains the 2D bounding box in the key "box_2d" as '
-    '[ymin, xmin, ymax, xmax] normalized to 0-1000, and a descriptive label '
+    "[ymin, xmin, ymax, xmax] normalized to 0-1000, and a descriptive label "
     'in the key "label".'
 )
 
@@ -35,11 +35,16 @@ def parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("image_path", type=Path, help="path to a local image")
     parser.add_argument(
-        "-o", "--output", type=Path, default=None,
+        "-o",
+        "--output",
+        type=Path,
+        default=None,
         help="path to save the annotated image (default: <image>_annotated.png)",
     )
     parser.add_argument(
-        "-v", "--verbose", action="store_true",
+        "-v",
+        "--verbose",
+        action="store_true",
         help="print progress and raw detections to stdout",
     )
     return parser.parse_args()
