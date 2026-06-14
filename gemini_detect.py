@@ -13,10 +13,10 @@ from PIL import Image, ImageDraw
 MODEL = "gemini-2.5-flash"
 
 PROMPT = (
-    "Detect the prominent items in the image. Output a JSON list where each "
-    'entry contains the 2D bounding box in the key "box_2d" as '
-    "[ymin, xmin, ymax, xmax] normalized to 0-1000, and a descriptive label "
-    'in the key "label".'
+    "Detect the basketball rim and basketball net in the image. Output a "
+    "JSON list where each entry contains the 2D bounding box in the key "
+    '"box_2d" as [ymin, xmin, ymax, xmax] normalized to 0-1000, and a '
+    'descriptive label in the key "label".'
 )
 
 COLORS = [
