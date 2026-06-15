@@ -14,7 +14,7 @@ from openai import OpenAI
 from PIL import Image, ImageDraw
 
 MODEL_GEMINI = "gemini-2.5-flash"
-MODEL_OPENAI = "gpt-4.1"
+MODEL_OPENAI = "gpt-5.5"
 
 BOX_SCHEMA = {
     "name": "detections",
@@ -154,7 +154,6 @@ def detect_openai(image, verbose):
             }
         ],
         response_format={"type": "json_schema", "json_schema": BOX_SCHEMA},
-        temperature=0.5,
     )
 
     payload = json.loads(response.choices[0].message.content)
