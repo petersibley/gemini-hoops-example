@@ -9,3 +9,6 @@ if [ ! -f "$IMAGE_FILE" ]; then
 fi
 
 uv run gemini_detect.py "$IMAGE_FILE" -v -o hoop_annotated.png
+
+# To use OpenAI instead of Gemini:
+#   uv run gemini_detect.py "$IMAGE_FILE" -v -o hoop_annotated.png --provider openai

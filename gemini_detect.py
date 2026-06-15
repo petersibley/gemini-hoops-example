@@ -1,16 +1,49 @@
 #!/usr/bin/env python3
-"""Detect objects and draw bounding boxes in an image using Gemini 2.5 Flash."""
+"""Detect objects and draw bounding boxes in an image using Gemini or GPT."""
 
 import argparse
+import base64
+import io
 import json
 import sys
 from pathlib import Path
 
 from google import genai
 from google.genai import types
+from openai import OpenAI
 from PIL import Image, ImageDraw
 
-MODEL = "gemini-2.5-flash"
+MODEL_GEMINI = "gemini-2.5-flash"
+MODEL_OPENAI = "gpt-4.1-nano"
+
+BOX_SCHEMA = {
+    "name": "detections",
+    "strict": True,
+    "schema": {
+        "type": "object",
+        "properties": {
+            "detections": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "box_2d": {
+                            "type": "array",
+                            "items": {"type": "integer"},
+                            "minItems": 4,
+                            "maxItems": 4,
+                        },
+                        "label": {"type": "string"},
+                    },
+                    "required": ["box_2d", "label"],
+                    "additionalProperties": False,
+                },
+            },
+        },
+        "required": ["detections"],
+        "additionalProperties": False,
+    },
+}
 
 PROMPT = (
     "Detect the basketball hoop, meaning the rim and net together as a "
@@ -53,6 +86,12 @@ def parse_args():
         action="store_true",
         help="print progress and raw detections to stdout",
     )
+    parser.add_argument(
+        "--provider",
+        choices=["gemini", "openai"],
+        default="gemini",
+        help="which multimodal model provider to use (default: gemini)",
+    )
     return parser.parse_args()
 
 
@@ -72,6 +111,54 @@ def box_to_pixels(box_2d, width, height):
         int(xmax / 1000 * width),
         int(ymax / 1000 * height),
     )
+
+
+def detect_gemini(image, verbose):
+    if verbose:
+        print("Calling Gemini...")
+
+    client = genai.Client()
+    response = client.models.generate_content(
+        model=MODEL_GEMINI,
+        contents=[PROMPT, image],
+        config=types.GenerateContentConfig(
+            temperature=0.5,
+            thinking_config=types.ThinkingConfig(thinking_budget=0),
+        ),
+    )
+
+    return json.loads(strip_code_fence(response.text))
+
+
+def detect_openai(image, verbose):
+    if verbose:
+        print("Calling OpenAI...")
+
+    buffer = io.BytesIO()
+    image.save(buffer, format="PNG")
+    image_b64 = base64.b64encode(buffer.getvalue()).decode("ascii")
+
+    client = OpenAI()
+    response = client.chat.completions.create(
+        model=MODEL_OPENAI,
+        messages=[
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": PROMPT},
+                    {
+                        "type": "image_url",
+                        "image_url": {"url": f"data:image/png;base64,{image_b64}"},
+                    },
+                ],
+            }
+        ],
+        response_format={"type": "json_schema", "json_schema": BOX_SCHEMA},
+        temperature=0.5,
+    )
+
+    payload = json.loads(response.choices[0].message.content)
+    return payload["detections"]
 
 
 def annotate(image, detections, verbose):
@@ -108,19 +195,11 @@ def main():
 
     if args.verbose:
         print(f"Loaded {args.image_path} ({image.width}x{image.height})")
-        print("Calling Gemini...")
 
-    client = genai.Client()
-    response = client.models.generate_content(
-        model=MODEL,
-        contents=[PROMPT, image],
-        config=types.GenerateContentConfig(
-            temperature=0.5,
-            thinking_config=types.ThinkingConfig(thinking_budget=0),
-        ),
-    )
-
-    detections = json.loads(strip_code_fence(response.text))
+    if args.provider == "openai":
+        detections = detect_openai(image, args.verbose)
+    else:
+        detections = detect_gemini(image, args.verbose)
 
     if args.verbose:
         print(f"Found {len(detections)} object(s):")
