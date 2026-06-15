@@ -10,6 +10,15 @@ export OPENAI_API_KEY=your-api-key-here
 
 You only need to set the API key for the provider you intend to use.
 
+## Quick Start
+
+```bash
+./run.sh
+```
+
+Downloads a sample hoop image (if not already present) and runs detection
+with Gemini, saving the result to `hoop_annotated.png`.
+
 ## Usage
 
 ```bash
