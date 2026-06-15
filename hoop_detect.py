@@ -14,7 +14,7 @@ from openai import OpenAI
 from PIL import Image, ImageDraw
 
 MODEL_GEMINI = "gemini-2.5-flash"
-MODEL_OPENAI = "gpt-4.1-mini"
+MODEL_OPENAI = "gpt-4.1"
 
 BOX_SCHEMA = {
     "name": "detections",
