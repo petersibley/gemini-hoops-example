@@ -8,7 +8,7 @@ if [ ! -f "$IMAGE_FILE" ]; then
   curl -sL "$IMAGE_URL" -o "$IMAGE_FILE"
 fi
 
-uv run gemini_detect.py "$IMAGE_FILE" -v -o hoop_annotated.png
+uv run hoop_detect.py "$IMAGE_FILE" -v -o hoop_annotated.png
 
 # To use OpenAI instead of Gemini:
-#   uv run gemini_detect.py "$IMAGE_FILE" -v -o hoop_annotated.png --provider openai
+#   uv run hoop_detect.py "$IMAGE_FILE" -v -o hoop_annotated.png --provider openai
